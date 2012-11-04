@@ -38,3 +38,4 @@ nosetests.xml
 ENV
 *.swp
 *.sqlite3
+wsgi.py

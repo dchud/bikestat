@@ -11,11 +11,11 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'bikestatdev',
         'USER': '',
         'PASSWORD': '',
-        'HOST': '',
+        'HOST': 'localhost',
         'PORT': '',
     }
 }
@@ -78,7 +78,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '4zi0w7k+^t2m)4-g50at*en)^a=lq0ct8d^rv$k$(%r&amp;p+sih('
+SECRET_KEY = '4zi0w7k+^t2m)4H*e0at*en)^a=lq0ct8d^rv$k$(%r&amp;p+sih('
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
