@@ -1,0 +1,54 @@
+{% load url from future %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ title }}</title>
+        {% block stylesheet %}
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href='{{ STATIC_URL }}bootstrap/css/bootstrap.min.css' rel='stylesheet' media='screen' />
+        <style type='text/css'>
+            body {
+                padding-top: 1em;
+                padding-bottom: 2em;
+            }
+            .container-narrow {
+                margin: 0 auto;
+                max-width: 960px;
+            }
+            .container-narrow > hr {
+                margin: 30px 0;
+            }
+        </style>
+        <link href='{{ STATIC_URL }}bootstrap/css/bootstrap-responsive.min.css' rel='stylesheet' media='screen' />
+        {% endblock stylesheet %}
+        {% block stylesheet_extra %}
+        {% endblock stylesheet_extra %}
+        {% block javascript %}
+        <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js'></script>
+        <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js"></script>
+        {% endblock javascript %}
+        {% block javascript_extra %}
+        {% endblock javascript_extra %}
+    </head>
+
+    <body>
+        <div class='container-narrow'>
+            <ul class='nav nav-pills pull-right'>
+                <li><a href='{% url "home" %}'>home</a></li>
+                <li><a href='{% url "about" %}'>about</a></li>
+                <li><a href='https://github.com/dchud/bikestat'>fork this app</a></li>
+            </ul>
+            <h3 class='muted'><a href='{% url "home" %}'>bikestat dc</a></h3>
+
+            <hr />
+
+            <div class='row-fluid'>
+                <div class='span12'>
+        {% block content %}
+        {% endblock content %}
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>

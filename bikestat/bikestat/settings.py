@@ -1,4 +1,4 @@
-# Django settings for bikestat project.
+from os.path import dirname, abspath
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -56,7 +56,7 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/home/media/media.lawrence.com/static/"
-STATIC_ROOT = ''
+STATIC_ROOT = dirname(dirname(abspath(__file__))) + '/static'
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
@@ -148,3 +148,10 @@ LOGGING = {
         },
     }
 }
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.core.context_processors.request',
+    'django.core.context_processors.static',
+    'django.contrib.auth.context_processors.auth',
+    'django.contrib.messages.context_processors.messages',
+)

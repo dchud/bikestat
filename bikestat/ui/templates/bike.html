@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block javascript_extra %}
+{% endblock javascript_extra %}
+
+{% block content %}
+<h1>bike {{ bike_num }}</h1>
+
+<table class='table'>
+    <thead>
+        <th>start</th>
+        <th>end</th>
+        <th>duration</th>
+        <th>map</th>
+    </thead>
+    <tbody>
+        {% for ride in rides %}
+        <tr>
+            <td>{{ ride.date_start|date:"Y-m-d, P l" }}</td>
+            <td>{{ ride.date_end|date:"Y-m-d, l P"}}</td>
+            <td>{{ ride.duration_minutes }} minute{{ ride.duration_minutes|pluralize }}</td>
+            <td><img id='map-={{ ride.id }}' src='{{ ride.map_url }}' 
+                border='0' /></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock content %}

@@ -1,3 +1,5 @@
+from motionless import DecoratedMap, AddressMarker
+
 from django.db import models as m
 
 
@@ -10,3 +12,21 @@ class Ride(m.Model):
     terminal_end = m.TextField(db_index=True, default='', blank=True)
     bike_num = m.CharField(db_index=True, max_length=14)
     status = m.CharField(db_index=True, max_length=10)
+
+    @property
+    def duration_seconds(self):
+        delta = self.date_end - self.date_start
+        return delta.seconds
+
+    @property
+    def duration_minutes(self, total=False):
+        return self.duration_seconds / 60
+
+    @property
+    def map_url(self):
+        dmap = DecoratedMap()
+        dmap.add_marker(AddressMarker('%s, Washington, DC' %
+                        self.station_start, color='green', label='S'))
+        dmap.add_marker(AddressMarker('%s, Washington, DC' %
+                        self.station_end, color='red', label='E'))
+        return dmap.generate_url()

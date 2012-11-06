@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block content %}
+<h1>Busy bikes.</h1>
+
+<table class='table'>
+    <thead>
+        <th>bike</th>
+        <th>rides</th>
+    </thead>
+    <tbody>
+        {% for bike in qs_bikes %}
+        <tr>
+            <td><a href='{% url "bike" bike.bike_num %}'>{{ bike.bike_num }}</a></td>
+            <td>{{ bike.bcount }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock content %}
