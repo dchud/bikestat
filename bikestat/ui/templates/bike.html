@@ -17,9 +17,19 @@
     <tbody>
         {% for ride in rides %}
         <tr>
-            <td>{{ ride.date_start|date:"Y-m-d, P l" }}</td>
-            <td>{{ ride.date_end|date:"Y-m-d, l P"}}</td>
-            <td>{{ ride.duration_minutes }} minute{{ ride.duration_minutes|pluralize }}</td>
+            <td>
+                {{ ride.date_start|date:"Y-m-d, P l" }}
+                <br />
+                {{ ride.station_start }}
+            </td>
+            <td>
+                {{ ride.date_end|date:"Y-m-d, l P"}}
+                <br />
+                {{ ride.station_end }}
+            </td>
+            <td>
+                {{ ride.duration_minutes }} minute{{ ride.duration_minutes|pluralize }}
+            </td>
             <td><img id='map-={{ ride.id }}' src='{{ ride.map_url }}' 
                 border='0' /></td>
         </tr>

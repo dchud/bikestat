@@ -24,7 +24,7 @@ class Ride(m.Model):
 
     @property
     def map_url(self):
-        dmap = DecoratedMap()
+        dmap = DecoratedMap(size_x=200, size_y=200)
         dmap.add_marker(AddressMarker('%s, Washington, DC' %
                         self.station_start, color='green', label='S'))
         dmap.add_marker(AddressMarker('%s, Washington, DC' %
