@@ -25,8 +25,41 @@ class Ride(m.Model):
     @property
     def map_url(self):
         dmap = DecoratedMap(size_x=200, size_y=200)
-        dmap.add_marker(AddressMarker('%s, Washington, DC' %
-                        self.station_start, color='green', label='S'))
-        dmap.add_marker(AddressMarker('%s, Washington, DC' %
-                        self.station_end, color='red', label='E'))
+        if self.station_start == self.station_end:
+            dmap.add_marker(AddressMarker('%s, Washington, DC' %
+                            self.station_start, color='blue', label='B'))
+        else:
+            dmap.add_marker(AddressMarker('%s, Washington, DC' %
+                            self.station_start, color='green', label='S'))
+            dmap.add_marker(AddressMarker('%s, Washington, DC' %
+                            self.station_end, color='red', label='E'))
         return dmap.generate_url()
+
+
+class Event(m.Model):
+    ride = m.ForeignKey(Ride)
+    date = m.DateTimeField(db_index=True)
+    station = m.TextField(db_index=True)
+    terminal = m.TextField(db_index=True, default='', blank=True)
+    bike_num = m.CharField(db_index=True, max_length=14)
+    is_end = m.BooleanField(db_index=True, default=False)
+
+
+def multi_map(rides):
+    contiguous = False
+    bikes = set([r.bike_num for r in rides])
+    if len(bikes) == 1:
+        contiguous = True
+    dmap = DecoratedMap(size_x=600, size_y=600)
+    for i in range(len(rides)):
+        ride = rides[i]
+        if contiguous:
+            dmap.add_marker(AddressMarker('%s, Washington, DC' %
+                            ride.station_start, color='white',
+                            label=chr(65 + i)))
+        else:
+            dmap.add_marker(AddressMarker('%s, Washington, DC' %
+                            ride.station_start, color='green', label='S'))
+            dmap.add_marker(AddressMarker('%s, Washington, DC' %
+                            ride.station_end, color='red', label='E'))
+    return dmap.generate_url()

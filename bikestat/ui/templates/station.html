@@ -5,16 +5,17 @@
 {% endblock javascript_extra %}
 
 {% block content %}
-<h1>bike {{ bike_num }}</h1>
+<h1>station {{ desc }}</h1>
 
 <img id='multi-map' src='{{ multi_map_url }}' border='0' />
 
 <table class='table'>
     <thead>
-        <th>start</th>
-        <th>end</th>
-        <th>duration</th>
-        <th>map</th>
+        <th width='25%'>start</th>
+        <th width='25%'>end</th>
+        <th width='10%'>bike</th>
+        <th width='15%'>duration</th>
+        <th width='25%'>map</th>
     </thead>
     <tbody>
         {% for ride in rides %}
@@ -28,6 +29,9 @@
                 {{ ride.date_end|date:"Y-m-d, l P"}}
                 <br />
                 <a href='{% url "station" ride.station_end %}'>{{ ride.station_end }}</a>
+            </td>
+            <td>
+                <a href='{% url "bike" ride.bike_num %}'>{{ ride.bike_num }}</a>
             </td>
             <td>
                 {{ ride.duration_minutes }} minute{{ ride.duration_minutes|pluralize }}

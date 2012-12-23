@@ -13,4 +13,5 @@ urlpatterns += patterns('ui.views',
     url(r'^about/', direct_to_template, {'template': 'about.html'}, 
         name='about'),
     url(r'^bike/(?P<bike_num>[a-zA-Z0-9]+)/', 'bike', name='bike'),
+    url(r'^station/(?P<desc>.*)/', 'station', name='station'),
 )

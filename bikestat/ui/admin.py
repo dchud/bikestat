@@ -10,3 +10,11 @@ class RideAdmin(admin.ModelAdmin):
                     ]
     list_filter = ['status']
 admin.site.register(m.Ride, RideAdmin)
+
+
+class EventAdmin(admin.ModelAdmin):
+    list_display = ['id', 'date', 'station', 'terminal', 'bike_num',
+                    'is_end']
+    list_filter = ['is_end', 'station']
+    search_fields = ['station', 'terminal', 'bike_num']
+admin.site.register(m.Event, EventAdmin)
