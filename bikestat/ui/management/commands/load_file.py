@@ -80,6 +80,4 @@ class Command(BaseCommand):
                     terminal_end=terminal_end,
                     bike_num=bike_num,
                     status=status)
-                if created:
-                    print 'added ride:', ride.id
             fp.close()
