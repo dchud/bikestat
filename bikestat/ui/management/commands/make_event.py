@@ -30,11 +30,9 @@ class Command(BaseCommand):
         for ride in qs:
             event_start = Event(ride=ride, date=ride.date_start,
                                 station=ride.station_start,
-                                terminal=ride.terminal_start,
-                                bike_num=ride.bike_num)
+                                bike=ride.bike)
             event_start.save()
             event_end = Event(ride=ride, date=ride.date_end,
                               station=ride.station_end,
-                              terminal=ride.terminal_end,
-                              bike_num=ride.bike_num, is_end=True)
+                              bike=ride.bike, is_end=True)
             event_end.save()

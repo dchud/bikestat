@@ -5,36 +5,61 @@
 {% endblock javascript_extra %}
 
 {% block content %}
-<h1>bike {{ bike_num }}</h1>
+<h1>bike {{ bike.num }}</h1>
 
-<img id='multi-map' src='{{ multi_map_url }}' border='0' />
+<p>
+{{ count }} rides since {{ first.date }}, longest: {{ longest.duration_hours|floatformat }} hours
+</p>
+
+
+<div class='pagination'>
+    <span class='step-links'>
+        {% if events.has_previous %}
+        <a href='{% url 'bike' bike.id %}?page=1'>&laquo;</a>
+        <a href='{% url 'bike' bike.id %}?page={{ events.previous_page_number }}'>next</a>
+        {% endif %}
+        <span class='current'>
+            {{ events.number }} of {{ events.paginator.num_pages }}
+        </span>
+        {% if events.has_next %}
+        <a href='{% url 'bike' bike.id %}?page={{ events.next_page_number }}'>prior</a>
+        <a href='{% url 'bike' bike.id %}?page={{ events.paginator.num_pages }}'>&raquo;</a>
+        {% endif %}
+    </span>
+</div>
 
 <table class='table'>
     <thead>
-        <th>start</th>
-        <th>end</th>
-        <th>duration</th>
-        <th>map</th>
+        <th width='12%'>type</th>
+        <th width='10%'>time</th>
+        <th>station</th>
     </thead>
     <tbody>
-        {% for ride in rides %}
+        {% regroup events by date.date as date_groups %}
+        {% for date_group in date_groups %}
         <tr>
-            <td>
-                {{ ride.date_start|date:"Y-m-d, P l" }}
-                <br />
-                <a href='{% url "station" ride.station_start %}'>{{ ride.station_start }}</a>
+            <td colspan='4'>
+                <h4>{{ date_group.grouper|date:"Y-m-d - l" }}</h4>
             </td>
-            <td>
-                {{ ride.date_end|date:"Y-m-d, l P"}}
-                <br />
-                <a href='{% url "station" ride.station_end %}'>{{ ride.station_end }}</a>
-            </td>
-            <td>
-                {{ ride.duration_minutes }} minute{{ ride.duration_minutes|pluralize }}
-            </td>
-            <td><img id='map-={{ ride.id }}' src='{{ ride.map_url }}' 
-                border='0' /></td>
         </tr>
+            {% for event in date_group.list|dictsortreversed:"date.time" %}
+        <tr>
+            {% if event.is_end %}
+            <td>
+                &nbsp;
+            {% else %}
+            <td class='start-row'>
+                start &raquo; {{ event.ride.duration_minutes }} min
+            {% endif %}
+            </td>
+            <td>
+                {{ event.date|date:"P" }}
+            </td>
+            <td>
+                <a href='{% url "station" event.station.id %}'>{{ event.station.desc }}</a>
+            </td>
+        </tr>
+            {% endfor %}
         {% endfor %}
     </tbody>
 </table>

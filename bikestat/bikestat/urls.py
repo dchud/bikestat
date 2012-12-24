@@ -2,6 +2,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.views.generic.simple import direct_to_template
 
+
 admin.autodiscover()
 
 urlpatterns = patterns('',
@@ -10,8 +11,8 @@ urlpatterns = patterns('',
 
 urlpatterns += patterns('ui.views',
     url(r'^$', 'home', name='home'),
-    url(r'^about/', direct_to_template, {'template': 'about.html'}, 
+    url(r'^about/', direct_to_template, {'template': 'about.html'},
         name='about'),
-    url(r'^bike/(?P<bike_num>[a-zA-Z0-9]+)/', 'bike', name='bike'),
-    url(r'^station/(?P<desc>.*)/', 'station', name='station'),
+    url(r'^bike/(?P<bike_id>[0-9]+)/', 'bike', name='bike'),
+    url(r'^station/(?P<station_id>[0-9]+)/', 'station', name='station'),
 )

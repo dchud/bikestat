@@ -3,15 +3,35 @@ from motionless import DecoratedMap, AddressMarker
 from django.db import models as m
 
 
+class Station(m.Model):
+    desc = m.TextField(default='', blank=True)
+    terminal = m.TextField(default='', blank=True)
+
+    def __unicode__(self):
+        return '(%s) %s' % (self.id, self.desc)
+
+
+class Bike(m.Model):
+    num = m.CharField(db_index=True, max_length=14)
+
+    def __unicode__(self):
+        return '(%s) %s' % (self.id, self.num)
+
+
 class Ride(m.Model):
+    REGISTERED = 'r'
+    CASUAL = 'c'
+    STATUS_CHOICES = [
+        (REGISTERED, 'Registered'),
+        (CASUAL, 'Casual'),
+    ]
     date_start = m.DateTimeField(db_index=True)
     date_end = m.DateTimeField(db_index=True)
-    station_start = m.TextField(db_index=True)
-    station_end = m.TextField(db_index=True)
-    terminal_start = m.TextField(db_index=True, default='', blank=True)
-    terminal_end = m.TextField(db_index=True, default='', blank=True)
-    bike_num = m.CharField(db_index=True, max_length=14)
-    status = m.CharField(db_index=True, max_length=10)
+    station_start = m.ForeignKey(Station, related_name='rides_start')
+    station_end = m.ForeignKey(Station, related_name='rides_end')
+    bike = m.ForeignKey(Bike, related_name='rides')
+    status = m.CharField(db_index=True, max_length=2,
+                         choices=STATUS_CHOICES, default=REGISTERED)
 
     @property
     def duration_seconds(self):
@@ -23,31 +43,36 @@ class Ride(m.Model):
         return self.duration_seconds / 60
 
     @property
+    def duration_hours(self):
+        delta = self.date_end - self.date_start
+        seconds = delta.seconds
+        return seconds / (60 * 60.0)
+
+    @property
     def map_url(self):
         dmap = DecoratedMap(size_x=200, size_y=200)
         if self.station_start == self.station_end:
             dmap.add_marker(AddressMarker('%s, Washington, DC' %
-                            self.station_start, color='blue', label='B'))
+                            self.station_start.desc, color='blue', label='B'))
         else:
             dmap.add_marker(AddressMarker('%s, Washington, DC' %
-                            self.station_start, color='green', label='S'))
+                            self.station_start.desc, color='green', label='S'))
             dmap.add_marker(AddressMarker('%s, Washington, DC' %
-                            self.station_end, color='red', label='E'))
+                            self.station_end.desc, color='red', label='E'))
         return dmap.generate_url()
 
 
 class Event(m.Model):
-    ride = m.ForeignKey(Ride)
+    ride = m.ForeignKey(Ride, related_name='events')
     date = m.DateTimeField(db_index=True)
-    station = m.TextField(db_index=True)
-    terminal = m.TextField(db_index=True, default='', blank=True)
-    bike_num = m.CharField(db_index=True, max_length=14)
+    station = m.ForeignKey(Station, related_name='events')
+    bike = m.ForeignKey(Bike, related_name='events')
     is_end = m.BooleanField(db_index=True, default=False)
 
 
 def multi_map(rides):
     contiguous = False
-    bikes = set([r.bike_num for r in rides])
+    bikes = set([r.bike.num for r in rides])
     if len(bikes) == 1:
         contiguous = True
     dmap = DecoratedMap(size_x=600, size_y=600)
@@ -55,11 +80,11 @@ def multi_map(rides):
         ride = rides[i]
         if contiguous:
             dmap.add_marker(AddressMarker('%s, Washington, DC' %
-                            ride.station_start, color='white',
+                            ride.station_start.desc, color='white',
                             label=chr(65 + i)))
         else:
             dmap.add_marker(AddressMarker('%s, Washington, DC' %
-                            ride.station_start, color='green', label='S'))
+                            ride.station_start.desc, color='green', label='S'))
             dmap.add_marker(AddressMarker('%s, Washington, DC' %
-                            ride.station_end, color='red', label='E'))
+                            ride.station_end.desc, color='red', label='E'))
     return dmap.generate_url()
