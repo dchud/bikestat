@@ -1,9 +1,6 @@
 {% extends "base.html" %}
 {% load url from future %}
 
-{% block javascript_extra %}
-{% endblock javascript_extra %}
-
 {% block content %}
 <h1>bike {{ bike.num }}</h1>
 
@@ -12,6 +9,7 @@
 </p>
 
 
+{% if events.paginator.num_pages > 1 %}
 <div class='pagination'>
     <span class='step-links'>
         {% if events.has_previous %}
@@ -27,6 +25,7 @@
         {% endif %}
     </span>
 </div>
+{% endif %}
 
 <table class='table'>
     <thead>
@@ -49,14 +48,23 @@
                 &nbsp;
             {% else %}
             <td class='start-row'>
-                start &raquo; {{ event.ride.duration_minutes }} min
+                {% spaceless %}
+                start &raquo; 
+                <a href='{% url "from_to_station" event.station.id event.ride.station_end.id %}'>
+                {{ event.ride.duration_minutes }} min
+                {% endspaceless %}
+            </a>
             {% endif %}
             </td>
             <td>
                 {{ event.date|date:"P" }}
             </td>
             <td>
-                <a href='{% url "station" event.station.id %}'>{{ event.station.desc }}</a>
+                {% if event.is_end %}
+                to <a href='{% url "station" event.ride.station_end.id %}'>{{ event.ride.station_end.desc }}</a>
+                {% else %}
+                from <a href='{% url "station" event.ride.station_start.id %}'>{{ event.ride.station_start.desc }}</a>
+                {% endif %}
             </td>
         </tr>
             {% endfor %}

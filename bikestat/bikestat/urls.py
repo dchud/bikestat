@@ -15,4 +15,6 @@ urlpatterns += patterns('ui.views',
         name='about'),
     url(r'^bike/(?P<bike_id>[0-9]+)/', 'bike', name='bike'),
     url(r'^station/(?P<station_id>[0-9]+)/', 'station', name='station'),
+    url(r'^from/(?P<station_start_id>[0-9]+)/to/(?P<station_end_id>[0-9]+)/',
+        'from_to_station', name='from_to_station'),
 )

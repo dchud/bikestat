@@ -18,18 +18,21 @@ def home(request):
 def _paginate(request, paginator):
     page = request.GET.get('page')
     try:
-        events = paginator.page(page)
+        items = paginator.page(page)
     except PageNotAnInteger:
-        events = paginator.page(1)
+        items = paginator.page(1)
     except EmptyPage:
-        events = paginator.page(paginator.num_pages)
-    return page, events
+        items = paginator.page(paginator.num_pages)
+    return page, items
 
 
 def bike(request, bike_id):
     bike = get_object_or_404(Bike, id=bike_id)
     count = bike.events.count() / 2
-    first = bike.events.order_by('date')[0]
+    if count > 0:
+        first = bike.events.order_by('date')[0]
+    else:
+        first = None
     longest = Ride.objects.raw('''
         SELECT *, MAX(date_end - date_start) AS the_max
         FROM ui_ride
@@ -59,6 +62,24 @@ def station(request, station_id):
         'title': station.desc,
         'station': station,
         'events': events,
+        'count': count,
+        'first': first,
+    })
+
+
+def from_to_station(request, station_start_id, station_end_id):
+    station_start = get_object_or_404(Station, id=station_start_id)
+    station_end = get_object_or_404(Station, id=station_end_id)
+    qs_rides = station_start.rides_start.filter(station_end=station_end)
+    count = qs_rides.count()
+    first = qs_rides.order_by('date_start')[0]
+    paginator = Paginator(qs_rides.order_by('-date_start'), 50)
+    page, rides = _paginate(request, paginator)
+    return render(request, 'from_to_station.html', {
+        'title': 'from %s to %s' % (station_start.desc, station_end.desc),
+        'station_start': station_start,
+        'station_end': station_end,
+        'rides': rides,
         'count': count,
         'first': first,
     })

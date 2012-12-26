@@ -3,7 +3,14 @@ from motionless import DecoratedMap, AddressMarker
 from django.db import models as m
 
 
-class Station(m.Model):
+class DateFilterable:
+
+    def date(self, year, month, day):
+        return self.events.filter(date__year=year, date__month=month,
+                                  date__day=day).order_by('-date')
+
+
+class Station(m.Model, DateFilterable):
     desc = m.TextField(default='', blank=True)
     terminal = m.TextField(default='', blank=True)
 
@@ -11,7 +18,7 @@ class Station(m.Model):
         return '(%s) %s' % (self.id, self.desc)
 
 
-class Bike(m.Model):
+class Bike(m.Model, DateFilterable):
     num = m.CharField(db_index=True, max_length=14)
 
     def __unicode__(self):
@@ -60,6 +67,19 @@ class Ride(m.Model):
             dmap.add_marker(AddressMarker('%s, Washington, DC' %
                             self.station_end.desc, color='red', label='E'))
         return dmap.generate_url()
+
+
+def ride_duration_histogram(rides):
+    d = {}
+    for r in rides.all():
+        try:
+            d[r.duration_minutes] += 1
+        except KeyError:
+            d[r.duration_minutes] = 1
+    h = []
+    for i in range(max(d.keys()) + 1):
+        h.append({'duration': i, 'count': d.get(i, 0)})
+    return h
 
 
 class Event(m.Model):

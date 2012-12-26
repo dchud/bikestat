@@ -30,7 +30,7 @@ class Command(BaseCommand):
         make_option('--empty', action='store_true', default=False,
                     dest='empty', help='empty the db first'),
     )
-    option_list = BaseCommand.option_list + (
+    option_list = option_list + (
         make_option('--test', action='store_true', default=False,
                     dest='test', help='limit to a test load'),
     )

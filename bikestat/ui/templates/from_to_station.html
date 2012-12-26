@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block content %}
+<h1>from {{ station_start.desc }}<br />to {{ station_end.desc }}</h1>
+
+<p>
+{{ count }} rides since {{ first.date_start }}
+</p>
+
+
+<div class='pagination'>
+    <span class='step-links'>
+        {% if rides.has_previous %}
+        <a href='{% url 'from_to_station' station_start.id station_end.id %}?page=1'>&laquo;</a>
+        <a href='{% url 'from_to_station' station_start.id station_end.id %}?page={{ rides.previous_page_number }}'>next</a>
+        {% endif %}
+        <span class='current'>
+            {{ rides.number }} of {{ rides.paginator.num_pages }}
+        </span>
+        {% if rides.has_next %}
+        <a href='{% url 'from_to_station' station_start.id station_end.id %}?page={{ rides.next_page_number }}'>prior</a>
+        <a href='{% url 'from_to_station' station_start.id station_end.id %}?page={{ rides.paginator.num_pages }}'>&raquo;</a>
+        {% endif %}
+    </span>
+</div>
+
+<table class='table'>
+    <thead>
+        <th width='20%'>duration</th>
+        <th width='20%'>start</th>
+        <th width='20%'>end</th>
+        <th width='40%'>bike</th>
+    </thead>
+    <tbody>
+        {% regroup rides by date_start.date as date_groups %}
+        {% for date_group in date_groups %}
+        <tr>
+            <td colspan='4'>
+                <h4>{{ date_group.grouper|date:"Y-m-d - l" }}</h4>
+            </td>
+        </tr>
+            {% for ride in date_group.list|dictsortreversed:"date_start.time" %}
+        <tr>
+            <td class='start-row'>
+                start &raquo; {{ ride.duration_minutes }} min
+            </td>
+            <td>
+                {{ ride.date_start|date:"P" }}
+            </td>
+            <td>
+                {{ ride.date_end|date:"P" }}
+            </td>
+            <td>
+                <a href='{% url "bike" ride.bike.id %}'>{{ ride.bike.num }}</a>
+            </td>
+        </tr>
+            {% endfor %}
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock content %}
