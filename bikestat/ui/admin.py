@@ -4,8 +4,8 @@ from ui import models as m
 
 
 class StationAdmin(admin.ModelAdmin):
-    list_display = ['id', 'desc']
-    search_fields = ['id', 'desc']
+    list_display = ['id', 'terminal', 'desc']
+    search_fields = ['id', 'terminal', 'desc']
 admin.site.register(m.Station, StationAdmin)
 
 
