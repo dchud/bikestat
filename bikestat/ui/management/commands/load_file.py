@@ -52,6 +52,8 @@ class Command(BaseCommand):
             # let me see that this happened before it scrolls away
             time.sleep(2)
         i = 0
+        stations = {}
+        bikes = {}
         for fname in args:
             print 'loading:', fname
             if fname.endswith('.gz'):
@@ -86,15 +88,15 @@ class Command(BaseCommand):
                 # values not always set
                 terminal_start = terminal_end = ''
                 if mode == 0:
-                    dur_str, dts_str, dte_str, station_start, \
-                        station_end, bike_num, status = vals
+                    dur_str, dts_str, dte_str, station_start_str, \
+                        station_end_str, bike_num, status = vals
                 elif mode == 1:
-                    dur_str, dur_seconds, dts_str, station_start, \
-                        terminal_start, dte_str, station_end, \
+                    dur_str, dur_seconds, dts_str, station_start_str, \
+                        terminal_start, dte_str, station_end_str, \
                         terminal_end, bike_num, status = vals
                 elif mode == 2:
-                    dur_str, dts_str, station_start, dte_str, \
-                        station_end, bike_num, status = vals
+                    dur_str, dts_str, station_start_str, dte_str, \
+                        station_end_str, bike_num, status = vals
                 else:
                     print 'invalid column format/mode'
                     sys.exit()
@@ -104,33 +106,42 @@ class Command(BaseCommand):
                 except:
                     print traceback.print_exc()
                     sys.exit(0)
-                terms_start = RE_TERMINAL.findall(station_start)
+                terms_start = RE_TERMINAL.findall(station_start_str)
                 if terms_start:
                     terminal_start = terms_start[0]
-                    station_start = station_start[:-8]
-                terms_end = RE_TERMINAL.findall(station_end)
+                    station_start_str = station_start_str[:-8]
+                terms_end = RE_TERMINAL.findall(station_end_str)
                 if terms_end:
                     terminal_end = terms_end[0]
-                    station_end = station_end[:-8]
-                station_start, created = Station.objects.get_or_create(
-                    terminal=terminal_start, desc=station_start)
-                if created:
-                    print 'new station:', station_start.desc
-                station_end, created = Station.objects.get_or_create(
-                    terminal=terminal_end, desc=station_end)
-                if created:
-                    print 'new station:', station_end.desc
-                bike, created = Bike.objects.get_or_create(num=bike_num)
-                if created:
-                    print 'new bike:', bike.num
-                ride, created = Ride.objects.get_or_create(
-                    date_start=dts,
-                    date_end=dte,
-                    station_start=station_start,
-                    station_end=station_end,
-                    bike=bike,
-                    status=getattr(Ride, status.upper()),
-                )
+                    station_end_str = station_end_str[:-8]
+                try:
+                    station_start = stations[station_start_str]
+                except KeyError:
+                    station_start, created = Station.objects.get_or_create(
+                        terminal=terminal_start, desc=station_start_str)
+                    if created:
+                        print 'new station:', station_start.desc
+                        stations[station_start_str] = station_start
+                try:
+                    station_end = stations[station_end_str]
+                except KeyError:
+                    station_end, created = Station.objects.get_or_create(
+                        terminal=terminal_end, desc=station_end_str)
+                    if created:
+                        print 'new station:', station_end.desc
+                        stations[station_end_str] = station_end
+                try:
+                    bike = bikes[bike_num]
+                except KeyError:
+                    bike, created = Bike.objects.get_or_create(num=bike_num)
+                    if created:
+                        print 'new bike:', bike.num
+                        bikes[bike_num] = bike
+                ride = Ride(date_start=dts, date_end=dte,
+                            station_start=station_start,
+                            station_end=station_end, bike=bike,
+                            status=getattr(Ride, status.upper()))
+                ride.save()
                 i += 1
                 if options.get('test', False):
                     if i == TEST_LIMIT:
