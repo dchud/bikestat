@@ -16,6 +16,11 @@ TEST_LIMIT = 10000
 
 RE_TERMINAL = re.compile(r' \(([0-9]+)\)')
 
+# modes represent each data column ordering
+MODE_2010 = 0
+MODE_2012a = 1
+MODE_2012b = 2
+
 
 def dt_aware_from_str(dt_str):
     ts = time.mktime(time.strptime(dt_str, '%m/%d/%Y %H:%M'))
@@ -54,16 +59,45 @@ class Command(BaseCommand):
             else:
                 fp = open(fname)
             # skip first line with fieldnames
-            fp.readline()
+            first_line = fp.readline()
+            mode = -1
+            if first_line.startswith(
+                    'Duration,Start date,End date,Start station'):
+                # early, e.g. 2010
+                mode = MODE_2010
+                print 'loading %s 2010-style' % fname
+            elif first_line.startswith(
+                    'Duration,Duration(Sec),Start date,Start Station'):
+                # mid, e.g. 2012 1st quarter
+                mode = MODE_2012a
+                print 'loading %s 2012a-style' % fname
+            elif first_line.startswith(
+                    'Duration,Start date,Start Station,End date'):
+                # later, e.g. 2012 3rd quarter
+                mode = MODE_2012b
+                print 'loading %s 2012b-style' % fname
+            else:
+                print 'Unrecognized column order in %s:\n%s' % \
+                    (fname, first_line)
+                sys.exit(0)
+
             for line in fp:
                 vals = line.strip().split(',')
-                if len(vals) == 7:
-                    dur_str, dts_str, dte_str, station_start, station_end, \
-                        bike_num, status = vals
-                elif len(vals) == 10:
+                # values not always set
+                terminal_start = terminal_end = ''
+                if mode == 0:
+                    dur_str, dts_str, dte_str, station_start, \
+                        station_end, bike_num, status = vals
+                elif mode == 1:
                     dur_str, dur_seconds, dts_str, station_start, \
-                        terminal_start, dte_str, station_end, terminal_end, \
-                        bike_num, status = vals
+                        terminal_start, dte_str, station_end, \
+                        terminal_end, bike_num, status = vals
+                elif mode == 2:
+                    dur_str, dts_str, station_start, dte_str, \
+                        station_end, bike_num, status = vals
+                else:
+                    print 'invalid column format/mode'
+                    sys.exit()
                 try:
                     dts = dt_aware_from_str(dts_str)
                     dte = dt_aware_from_str(dte_str)
