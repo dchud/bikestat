@@ -1,10 +1,9 @@
 from optparse import make_option
-import time
 
 from django.core.management.base import BaseCommand
 from django.db import connection
 
-from ui.models import Event, Ride
+from ui.models import Event
 
 
 class Command(BaseCommand):
@@ -16,23 +15,18 @@ class Command(BaseCommand):
     )
 
     def handle(self, *args, **options):
+        cursor = connection.cursor()
         if options.get('empty', False):
-            print 'emptying out events table first'
-            qs = Event.objects.all()
-            print 'deleting %s event(s)' % qs.count()
-            cursor = connection.cursor()
+            print 'deleting %s events' % Event.objects.count()
             cursor.execute('DELETE FROM ui_event')
             cursor.execute('ALTER SEQUENCE ui_event_id_seq RESTART WITH 1')
-            print 'done'
-            # let me see that this happened before it scrolls away
-            time.sleep(2)
-        qs = Ride.objects.all()
-        for ride in qs:
-            event_start = Event(ride=ride, date=ride.date_start,
-                                station=ride.station_start,
-                                bike=ride.bike)
-            event_start.save()
-            event_end = Event(ride=ride, date=ride.date_end,
-                              station=ride.station_end,
-                              bike=ride.bike, is_end=True)
-            event_end.save()
+        cursor.execute('''
+            INSERT INTO ui_event
+                (ride_id, date, station_id, bike_id, is_end)
+            SELECT id, date_start, station_start_id, bike_id, FALSE
+            FROM ui_ride
+            UNION ALL
+            SELECT id, date_end, station_end_id, bike_id, TRUE
+            FROM ui_ride
+            ''')
+        print 'inserted %s events' % Event.objects.count()
