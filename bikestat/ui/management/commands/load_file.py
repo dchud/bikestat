@@ -69,7 +69,9 @@ class Command(BaseCommand):
                 mode = MODE_2010
                 print 'loading %s 2010-style' % fname
             elif first_line.startswith(
-                    'Duration,Duration(Sec),Start date,Start Station'):
+                    'Duration,Duration(Sec),Start date,Start Station') or \
+                first_line.startswith(
+                    'Duration,Duration (sec),Start date,Start Station'):
                 # mid, e.g. 2012 1st quarter
                 mode = MODE_2012a
                 print 'loading %s 2012a-style' % fname
