@@ -110,17 +110,15 @@ class Command(BaseCommand):
                     sys.exit(0)
                 terms_start = RE_TERMINAL.findall(station_start_str)
                 if terms_start:
-                    terminal_start = terms_start[0]
                     station_start_str = station_start_str[:-8]
                 terms_end = RE_TERMINAL.findall(station_end_str)
                 if terms_end:
-                    terminal_end = terms_end[0]
                     station_end_str = station_end_str[:-8]
                 try:
                     station_start = stations[station_start_str]
                 except KeyError:
                     station_start, created = Station.objects.get_or_create(
-                        terminal=terminal_start, desc=station_start_str)
+                        desc=station_start_str)
                     if created:
                         print 'new station:', station_start.desc
                         stations[station_start_str] = station_start
@@ -128,7 +126,7 @@ class Command(BaseCommand):
                     station_end = stations[station_end_str]
                 except KeyError:
                     station_end, created = Station.objects.get_or_create(
-                        terminal=terminal_end, desc=station_end_str)
+                        desc=station_end_str)
                     if created:
                         print 'new station:', station_end.desc
                         stations[station_end_str] = station_end

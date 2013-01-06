@@ -12,7 +12,6 @@ class DateFilterable:
 
 class Station(m.Model, DateFilterable):
     desc = m.TextField(default='', blank=True)
-    terminal = m.TextField(default='', blank=True)
 
     def __unicode__(self):
         return '(%s) %s' % (self.id, self.desc)
