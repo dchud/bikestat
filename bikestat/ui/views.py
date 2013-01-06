@@ -1,6 +1,9 @@
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.db import connection
 from django.db.models import Count
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
+from django.utils import simplejson as json
 
 from ui.models import Bike, Station, Ride
 
@@ -65,6 +68,39 @@ def station(request, station_id):
         'count': count,
         'first': first,
     })
+
+
+def station_monthly_summary_json(request, station_id):
+    station = get_object_or_404(Station, id=station_id)
+    cursor = connection.cursor()
+    cursor.execute('''
+        SELECT TO_CHAR(date, 'YYYY-MM') AS yearmonth, COUNT(*) AS ecount,
+            is_end
+        FROM ui_event
+        WHERE station_id=%s
+        GROUP BY yearmonth, is_end
+        ORDER BY yearmonth, is_end''', [station.id])
+    monthly_summary = []
+    row = cursor.fetchone()
+    d = {}
+    while row:
+        if row[2]:
+            # some rides end slightly into the next quarter, leaving
+            # a dangling ends row with no matching row w/starts
+            try:
+                d['end'] = row[1]
+            except:
+                d = {'end': row[1], 'month': row[0], 'start': 0}
+            d['total'] = d['start'] + d['end']
+            # eliminate minimal data
+            if d['total'] > 5:
+                monthly_summary.append(d)
+            d = None
+        else:
+            d = {'month': row[0], 'start': row[1]}
+        row = cursor.fetchone()
+    return HttpResponse(json.dumps(monthly_summary),
+                        content_type='application_json')
 
 
 def from_to_station(request, station_start_id, station_end_id):
