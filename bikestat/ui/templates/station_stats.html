@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load url from future %}
+
+{% block javascript_extra %}
+<script src="http://d3js.org/d3.v2.min.js"></script>
+{% endblock javascript_extra %}
+
+{% block stylesheet_extra %}
+<style type='text/css'>
+    rect {
+        font: 10px sans-serif;
+        text-align: right;
+        padding: 4px;
+        margin: 1px;
+        color: white;
+    }
+</style>
+{% endblock stylesheet_extra %}
+
+
+{% block content %}
+<h1>{{ station.desc }}</h1>
+
+<div id='viz'>
+    <p>
+{{ count }} docking events since {{ first.date }}
+    </p>
+    <p>
+See <a href="{% url 'station' station.id %}">all events</a>.
+    </p>
+</div>
+
+<script type='text/javascript'>
+    d3.json('{% url "station_monthly_summary_json" station.id %}',
+            update);
+    var width = 1000;
+    var height = 500;
+    var svg = d3.select('#viz')
+        .append('svg')
+        .attr('width', width)
+        .attr('height', height);
+
+    function update(data) {
+        var x = d3.scale.pow()
+            .domain([0, 200 + d3.max(data.map(function(d) { return d.total; }))])
+            .range([0, width]);
+
+        svg.selectAll('rect')
+            .data(data)
+          .enter().append('rect')
+            .attr('x', 0)
+            .attr('y', function(d, i) { return i * 20; })
+            .attr('width', function(d) { return x(d.total); })
+            .attr('height', 19)
+            .attr('fill', 'khaki');
+
+        svg.selectAll('rect.div')
+            .data(data)
+          .enter().append('rect')
+            .attr('x', function(d) { return x(d.start); })
+            .attr('y', function(d, i) { return i * 20; })
+            .attr('width', 1)
+            .attr('height', 19)
+            .attr('fill', 'darkslateblue');
+
+        svg.selectAll('text')
+            .data(data)
+          .enter().append('text')
+            .text(function(d) { return d.month; })
+            .attr('x', 5)
+            .attr('y', function(d, i) { return 14 + (i * 20); })
+            .attr('fill', 'darkslateblue')
+
+        svg.selectAll('text.start')
+            .data(data)
+          .enter().append('text')
+            .text(function(d) { return d.start; })
+            .attr('x', function(d) { return x(d.start); })
+            .attr('y', function(d, i) { return 14 + (i * 20); })
+            .attr('dx', '-2.5em')
+            .attr('fill', 'darkolivegreen');
+
+        svg.selectAll('text.end')
+            .data(data)
+          .enter().append('text')
+            .text(function(d) { return d.end; })
+            .attr('x', function(d) { return x(d.start); })
+            .attr('y', function(d, i) { return 14 + (i * 20); })
+            .attr('dx', '1em')
+            .attr('fill', 'maroon');
+
+        svg.selectAll('text.total')
+            .data(data)
+          .enter().append('text')
+            .text(function(d) { return d.total; })
+            .attr('x', function(d) { return x(d.total); })
+            .attr('y', function(d, i) { return 14 + (i * 20); })
+            .attr('dx', '10px')
+            .attr('fill', 'black');
+    };
+</script>
+
+{% endblock content %}

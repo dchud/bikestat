@@ -5,16 +5,20 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.utils import simplejson as json
 
-from ui.models import Bike, Station, Ride
+from ui.models import Bike, Station, Ride, Event
 
 
 def home(request):
-    qs_rides = Ride.objects.values('bike', 'bike__num')
-    qs_rides = qs_rides.annotate(Count('bike'))
-    qs_rides = qs_rides.order_by('-bike__count')
+    qs_rides = Event.objects.values('bike', 'bike__num')
+    #qs_rides = qs_rides.annotate(Count('bike'))
+    #qs_rides = qs_rides.order_by('-bike__count')
+    qs_stations = Event.objects.values('station', 'station__desc')
+    #qs_stations = qs_stations.annotate(Count('station'))
+    #qs_stations = qs_stations.order_by('-station__count')
     return render(request, 'home.html', {
         'title': 'home',
         'rides': qs_rides[:50],
+        'stations': qs_stations[:50],
     })
 
 
@@ -57,14 +61,24 @@ def bike(request, bike_id):
 
 def station(request, station_id):
     station = get_object_or_404(Station, id=station_id)
-    count = station.events.count()
-    first = station.events.order_by('date')[0]
     paginator = Paginator(station.events.order_by('-date'), 50)
     page, events = _paginate(request, paginator)
+    first = events[0]
     return render(request, 'station.html', {
         'title': station.desc,
         'station': station,
         'events': events,
+        'first': first,
+    })
+
+
+def station_stats(request, station_id):
+    station = get_object_or_404(Station, id=station_id)
+    count = station.events.count()
+    first = station.events.order_by('date')[0]
+    return render(request, 'station_stats.html', {
+        'title': station.desc,
+        'station': station,
         'count': count,
         'first': first,
     })

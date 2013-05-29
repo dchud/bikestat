@@ -25,7 +25,7 @@ class Bike(m.Model, DateFilterable):
 
 
 class Ride(m.Model):
-    REGISTERED = 'r'
+    SUBSCRIBER = REGISTERED = 'r'
     CASUAL = 'c'
     STATUS_CHOICES = [
         (REGISTERED, 'Registered'),

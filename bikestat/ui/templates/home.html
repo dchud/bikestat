@@ -2,20 +2,45 @@
 {% load url from future %}
 
 {% block content %}
-<h1>Busy bikes.</h1>
 
-<table class='table'>
-    <thead>
-        <th>bike</th>
-        <th>rides</th>
-    </thead>
-    <tbody>
-        {% for ride in rides %}
-        <tr>
-            <td><a href='{% url "bike" ride.bike %}'>{{ ride.bike__num }}</a></td>
-            <td>{{ ride.bike__count }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class='row'>
+    <div class='span4'>
+        <h1>Busy bikes.</h1>
+
+        <table class='table'>
+            <thead>
+                <th>bike</th>
+                <th>rides</th>
+            </thead>
+            <tbody>
+                {% for ride in rides %}
+                <tr>
+                    <td><a href='{% url "bike" ride.bike %}'>{{ ride.bike__num }}</a></td>
+                    <td>{{ ride.bike__count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class='span6'>
+        <h1>Busy stations.</h1>
+
+        <table class='table'>
+            <thead>
+                <th>station</th>
+                <th>rides</th>
+            </thead>
+            <tbody>
+                {% for station in stations %}
+                <tr>
+                    <td><a href='{% url "station" station.station %}'>{{ station.station__desc }}</a></td>
+                    <td>{{ station.station__count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+</div>
 {% endblock content %}
