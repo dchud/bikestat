@@ -1,6 +1,6 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
-from django.views.generic.simple import direct_to_template
+from django.views.generic import TemplateView
 
 
 admin.autodiscover()
@@ -11,7 +11,7 @@ urlpatterns = patterns('',
 
 urlpatterns += patterns('ui.views',
     url(r'^$', 'home', name='home'),
-    url(r'^about/', direct_to_template, {'template': 'about.html'},
+    url(r'^about/', TemplateView.as_view(template_name='about.html'),
         name='about'),
     url(r'^bike/(?P<bike_id>[0-9]+)/', 'bike', name='bike'),
     url(r'^station/(?P<station_id>[0-9]+)/$', 'station', name='station'),
