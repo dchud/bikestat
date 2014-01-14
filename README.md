@@ -17,7 +17,7 @@ can probably get it running easily elsewhere, but YMMV.
 
 * Install apache and other dependencies:
 
-        % sudo apt-get install apache2 libapache2-mod-wsgi python-dev libaio-dev git python-setuptools
+        % sudo apt-get install apache2 libapache2-mod-wsgi python-dev libaio-dev git python-setuptools python-profiler postgresql postgresql-contrib libpq-dev
 
 * Install virtualenv and prep a directory to be a virtual environment
 for the app, replacing "/BIKESTAT" with a directory location you
