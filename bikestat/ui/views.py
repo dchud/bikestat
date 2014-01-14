@@ -10,11 +10,11 @@ from ui.models import Bike, Station, Ride, Event
 
 def home(request):
     qs_rides = Event.objects.values('bike', 'bike__num')
-    #qs_rides = qs_rides.annotate(Count('bike'))
-    #qs_rides = qs_rides.order_by('-bike__count')
+    qs_rides = qs_rides.annotate(Count('bike'))
+    qs_rides = qs_rides.order_by('-bike__count')
     qs_stations = Event.objects.values('station', 'station__desc')
-    #qs_stations = qs_stations.annotate(Count('station'))
-    #qs_stations = qs_stations.order_by('-station__count')
+    qs_stations = qs_stations.annotate(Count('station'))
+    qs_stations = qs_stations.order_by('-station__count')
     return render(request, 'home.html', {
         'title': 'home',
         'rides': qs_rides[:50],

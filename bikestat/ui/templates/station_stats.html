@@ -35,6 +35,7 @@ See <a href="{% url 'station' station.id %}">all events</a>.
             update);
     var width = 1000;
     var height = 500;
+    var bump = 65;
     var svg = d3.select('#viz')
         .append('svg')
         .attr('width', width)
@@ -48,7 +49,7 @@ See <a href="{% url 'station' station.id %}">all events</a>.
         svg.selectAll('rect')
             .data(data)
           .enter().append('rect')
-            .attr('x', 0)
+            .attr('x', bump)
             .attr('y', function(d, i) { return i * 20; })
             .attr('width', function(d) { return x(d.total); })
             .attr('height', 19)
@@ -57,7 +58,7 @@ See <a href="{% url 'station' station.id %}">all events</a>.
         svg.selectAll('rect.div')
             .data(data)
           .enter().append('rect')
-            .attr('x', function(d) { return x(d.start); })
+            .attr('x', function(d) { return bump + x(d.start); })
             .attr('y', function(d, i) { return i * 20; })
             .attr('width', 1)
             .attr('height', 19)
@@ -75,7 +76,7 @@ See <a href="{% url 'station' station.id %}">all events</a>.
             .data(data)
           .enter().append('text')
             .text(function(d) { return d.start; })
-            .attr('x', function(d) { return x(d.start); })
+            .attr('x', function(d) { return bump + x(d.start); })
             .attr('y', function(d, i) { return 14 + (i * 20); })
             .attr('dx', '-2.5em')
             .attr('fill', 'darkolivegreen');
@@ -84,7 +85,7 @@ See <a href="{% url 'station' station.id %}">all events</a>.
             .data(data)
           .enter().append('text')
             .text(function(d) { return d.end; })
-            .attr('x', function(d) { return x(d.start); })
+            .attr('x', function(d) { return bump + x(d.start); })
             .attr('y', function(d, i) { return 14 + (i * 20); })
             .attr('dx', '1em')
             .attr('fill', 'maroon');
@@ -93,7 +94,7 @@ See <a href="{% url 'station' station.id %}">all events</a>.
             .data(data)
           .enter().append('text')
             .text(function(d) { return d.total; })
-            .attr('x', function(d) { return x(d.total); })
+            .attr('x', function(d) { return bump + x(d.total); })
             .attr('y', function(d, i) { return 14 + (i * 20); })
             .attr('dx', '10px')
             .attr('fill', 'black');

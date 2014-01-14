@@ -20,6 +20,8 @@ RE_TERMINAL = re.compile(r' \(([0-9]+)\)')
 MODE_2010 = 0
 MODE_2012a = 1
 MODE_2012b = 2
+MODE_2013a = 3
+MODE_2013b = 4
 
 
 def dt_aware_from_str(dt_str):
@@ -80,6 +82,16 @@ class Command(BaseCommand):
                 # later, e.g. 2012 3rd quarter
                 mode = MODE_2012b
                 print 'loading %s 2012b-style' % fname
+            elif first_line.startswith(
+                    'Duration,Start time,Start Station,Start terminal'):
+                # 2013 1st quarter
+                mode = MODE_2013a
+                print 'loading %s 2013a-style' % fname
+            elif first_line.startswith(
+                    'Duration,Start date,Start Station,Start terminal'):
+                # 2013 3rd quarter
+                mode = MODE_2013b
+                print 'loading %s 2013b-style' % fname
             else:
                 print 'Unrecognized column order in %s:\n%s' % \
                     (fname, first_line)
@@ -89,16 +101,25 @@ class Command(BaseCommand):
                 vals = line.strip().split(',')
                 # values not always set
                 terminal_start = terminal_end = ''
-                if mode == 0:
+                if mode == MODE_2010:
                     dur_str, dts_str, dte_str, station_start_str, \
                         station_end_str, bike_num, status = vals
-                elif mode == 1:
+                elif mode == MODE_2012a:
                     dur_str, dur_seconds, dts_str, station_start_str, \
                         terminal_start, dte_str, station_end_str, \
                         terminal_end, bike_num, status = vals
-                elif mode == 2:
+                elif mode == MODE_2012b:
                     dur_str, dts_str, station_start_str, dte_str, \
                         station_end_str, bike_num, status = vals
+                elif mode == MODE_2013a:
+                    dur_str, dts_str, station_start_str, terminal_start, \
+                        dte_str, station_end_str, terminal_end, bike_num, \
+                        status = vals
+                elif mode == MODE_2013b:
+                    #Duration,Start date,Start Station,Start terminal,End date,End Station,End terminal,Bike#,Subscription Type
+                    dur_str, dts_str, station_start_str, terminal_start, \
+                        dte_str, station_end_str, terminal_end, bike_num, \
+                        status = vals
                 else:
                     print 'invalid column format/mode'
                     sys.exit()

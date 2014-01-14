@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load url from future %}
+{% load humanize %}
 
 {% block content %}
 
@@ -16,7 +16,7 @@
                 {% for ride in rides %}
                 <tr>
                     <td><a href='{% url "bike" ride.bike %}'>{{ ride.bike__num }}</a></td>
-                    <td>{{ ride.bike__count }}</td>
+                    <td>{{ ride.bike__count|intcomma }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -35,7 +35,7 @@
                 {% for station in stations %}
                 <tr>
                     <td><a href='{% url "station" station.station %}'>{{ station.station__desc }}</a></td>
-                    <td>{{ station.station__count }}</td>
+                    <td>{{ station.station__count|intcomma }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
